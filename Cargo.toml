@@ -1,0 +1,12 @@
+[package]
+name = "lexa-logger"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = { version = "^0.4", default-features = false, features = ["clock"] }
+console = { version = "^0.15" }
+lazy_static = { version = "^1.4" }
+log = { version = "^0.4", features = ["std"] }
+regex = { version = "^1.9" }
+unicode-width = { version = "^0.1" }
