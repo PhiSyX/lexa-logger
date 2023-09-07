@@ -2,6 +2,9 @@
 name = "lexa-logger"
 version = "0.1.0"
 edition = "2021"
+license = "MPL-2.0"
+repository = "https://github.com/PhiSyX/lexa-logger"
+description = "Un logger parmi tant d'autres."
 
 [dependencies]
 chrono = { version = "^0.4", default-features = false, features = ["clock"] }
