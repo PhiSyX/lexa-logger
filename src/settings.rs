@@ -15,31 +15,58 @@
 // ┃  file, You can obtain one at https://mozilla.org/MPL/2.0/.                ┃
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-use crate::layout;
-
 // --------- //
 // Structure //
 // --------- //
 
-pub struct Echo<'a> {
-	pub(super) time: Option<chrono::DateTime<chrono::Local>>,
-	pub(super) delimiter: String,
-	pub(super) level: String,
-	pub(super) record_level: log::Level,
-	pub(super) table: &'a mut layout::GridLayout<'a>,
+#[derive(Debug)]
+#[derive(Clone)]
+#[derive(serde::Deserialize, serde::Serialize)]
+pub struct Settings {
+	pub colorized: bool,
+	pub max_level: SettingsLevel,
+	pub target_filters: Vec<String>,
+	pub timestamp: bool,
+}
+
+// ----------- //
+// Énumération //
+// ----------- //
+
+#[derive(Debug)]
+#[derive(Copy, Clone)]
+#[derive(serde::Deserialize, serde::Serialize)]
+pub enum SettingsLevel {
+	DEBUG,
+	ERROR,
+	INFO,
+	TRACE,
+	WARNING,
 }
 
 // -------------- //
-// Implémentation //
+// Implémentation // -> Interface
 // -------------- //
 
-impl Echo<'_> {
-	/// `Stdout`: Affichage du log.
-	pub(super) fn log(self, text: String) {
-		if self.record_level == log::LevelFilter::Error {
-			eprint!("{text}");
-		} else {
-			print!("{text}");
+impl Default for Settings {
+	fn default() -> Self {
+		Self {
+			colorized: true,
+			timestamp: true,
+			max_level: SettingsLevel::TRACE,
+			target_filters: Default::default(),
+		}
+	}
+}
+
+impl From<SettingsLevel> for log::LevelFilter {
+	fn from(level: SettingsLevel) -> Self {
+		match level {
+			| SettingsLevel::DEBUG => Self::Debug,
+			| SettingsLevel::ERROR => Self::Error,
+			| SettingsLevel::INFO => Self::Info,
+			| SettingsLevel::TRACE => Self::Trace,
+			| SettingsLevel::WARNING => Self::Warn,
 		}
 	}
 }

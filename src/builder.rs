@@ -16,8 +16,6 @@
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 use console::style;
-#[cfg(feature = "tui")]
-use tokio::sync::mpsc;
 
 use crate::{FilterFn, FormatFn};
 
@@ -60,8 +58,8 @@ impl Builder {
 	}
 
 	/// Le niveau de log.
-	pub fn with_level(mut self, level: log::LevelFilter) -> Self {
-		self.level.replace(level);
+	pub fn with_level(mut self, level: impl Into<log::LevelFilter>) -> Self {
+		self.level.replace(level.into());
 		self
 	}
 

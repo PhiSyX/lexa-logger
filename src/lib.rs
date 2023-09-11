@@ -18,11 +18,16 @@
 pub(crate) mod builder;
 pub(crate) mod echo;
 pub mod layout;
+#[cfg(feature = "serde")]
+mod settings;
 pub mod stdout;
 
 use std::fmt;
 
 pub use log::*;
+
+#[cfg(feature = "serde")]
+pub use self::settings::Settings;
 
 // ---- //
 // Type //
