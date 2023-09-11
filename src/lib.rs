@@ -27,7 +27,7 @@ use std::fmt;
 pub use log::*;
 
 #[cfg(feature = "serde")]
-pub use self::settings::Settings;
+pub use self::settings::{Settings, SettingsLevel};
 
 // ---- //
 // Type //
