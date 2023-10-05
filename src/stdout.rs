@@ -26,8 +26,13 @@ pub struct Logger {
 	pub timestamp: bool,
 	pub level: Option<log::LevelFilter>,
 	pub format_fn: FormatFn,
-	pub filters_fn: Vec<Box<FilterFn>>,
+	pub filter: LoggerFilter,
 	pub cache: Arc<Mutex<HashMap<String, bool>>>,
+}
+
+pub struct LoggerFilter {
+	pub callbacks: Vec<Box<FilterFn>>,
+	pub dependencies: Vec<String>,
 }
 
 // -------------- //
@@ -64,15 +69,24 @@ impl log::Log for Logger {
 	fn enabled(&self, metadata: &log::Metadata) -> bool {
 		let mut guard = self.cache.lock().expect("guard");
 		metadata.level() != log::LevelFilter::Off
-			&& (self.filters_fn.is_empty()
-				|| self.filters_fn.iter().any(|once_fn| {
-					if let Some(has) = guard.get(metadata.target()) {
-						return *has;
-					}
-					let is_ok = once_fn(metadata);
-					guard.insert(metadata.target().to_string(), is_ok);
-					is_ok
-				}))
+			&& (self.filter.callbacks.is_empty()
+				|| self.filter.callbacks.iter().enumerate().any(
+					|(idx, once_fn)| {
+						let cache_key = format!(
+							"{}_{}",
+							self.filter.dependencies[idx],
+							metadata.target()
+						);
+
+						if let Some(has) = guard.get(&cache_key) {
+							return *has;
+						}
+
+						let is_ok = once_fn(metadata);
+						guard.insert(cache_key, is_ok);
+						is_ok
+					},
+				))
 	}
 
 	/// Affiche le log.

@@ -22,18 +22,29 @@ pub struct Builder {
 	timestamp: bool,
 	level: Option<log::LevelFilter>,
 	format_fn: Option<FormatFn>,
-	filters_fn: Vec<Box<FilterFn>>,
+	filter: BuilderFilter,
 }
+
+#[derive(Default)]
+pub struct BuilderFilter {
+	callbacks: Vec<Box<FilterFn>>,
+	dependencies: Vec<String>,
+}
+
+// -------------- //
+// Implémentation //
+// -------------- //
 
 impl Builder {
 	/// Ajoute un filtre au système de log.
-	pub fn filter<F>(mut self, predicate: F) -> Self
+	pub fn filter<F>(mut self, predicate: F, dependency: impl ToString) -> Self
 	where
 		F: 'static,
 		F: Send + Sync,
 		F: Fn(&log::Metadata) -> bool,
 	{
-		self.filters_fn.push(Box::new(predicate));
+		self.filter.push_callback(predicate);
+		self.filter.add_dependency(dependency);
 		self
 	}
 
@@ -112,9 +123,27 @@ impl Builder {
 				echo.table.render()
 			}),
 			level: self.level,
-			filters_fn: self.filters_fn,
+			filter: stdout::LoggerFilter {
+				callbacks: self.filter.callbacks,
+				dependencies: self.filter.dependencies,
+			},
 			cache: Default::default(),
 		}
 		.apply()
+	}
+}
+
+impl BuilderFilter {
+	fn push_callback<F>(&mut self, predicate: F)
+	where
+		F: 'static,
+		F: Send + Sync,
+		F: Fn(&log::Metadata) -> bool,
+	{
+		self.callbacks.push(Box::new(predicate));
+	}
+
+	fn add_dependency(&mut self, dependency: impl ToString) {
+		self.dependencies.push(dependency.to_string());
 	}
 }
