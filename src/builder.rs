@@ -30,8 +30,7 @@ impl Builder {
 	pub fn filter<F>(mut self, predicate: F) -> Self
 	where
 		F: 'static,
-		F: Send,
-		F: Sync,
+		F: Send + Sync,
 		F: Fn(&log::Metadata) -> bool,
 	{
 		self.filters_fn.push(Box::new(predicate));
@@ -41,6 +40,12 @@ impl Builder {
 	/// Autorise les logs à être colorés.
 	pub fn with_color(mut self) -> Self {
 		self.colorized = true;
+		self
+	}
+
+	/// Autorise ou non les logs à être colorés.
+	pub fn define_color(mut self, b: impl Into<bool>) -> Self {
+		self.colorized = b.into();
 		self
 	}
 
@@ -59,6 +64,12 @@ impl Builder {
 	/// Autorise les logs à avoir un timestamp.
 	pub fn with_timestamp(mut self) -> Self {
 		self.timestamp = true;
+		self
+	}
+
+	/// Autorise ou non les logs à avoir un timestamp.
+	pub fn define_timestamp(mut self, b: impl Into<bool>) -> Self {
+		self.timestamp = b.into();
 		self
 	}
 
