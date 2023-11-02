@@ -8,19 +8,19 @@
 // ┃  file, You can obtain one at https://mozilla.org/MPL/2.0/.                ┃
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-pub(crate) mod builder;
-mod initiator;
-mod echo;
-pub mod layout;
-mod noop;
-#[cfg(feature = "serde")]
-mod settings;
-mod stdout;
+use crate::initiator::LoggerInitiator;
+use crate::{LoggerBuilder, LoggerStdout};
 
-pub use log::*;
+// --------- //
+// Interface //
+// --------- //
 
-pub use self::builder::{Logger, LoggerBuilder};
-pub use self::initiator::LoggerInitiator;
-#[cfg(feature = "serde")]
-pub use self::settings::{Settings, SettingsLevel};
-pub use self::stdout::*;
+pub trait LoggerStdoutBuilderExtension
+	: Sized
+	+ LoggerBuilder<LoggerStdout>
+{
+	fn initialize(self)
+	{
+		LoggerInitiator::stdout(self).expect("L'initialisation du logger (stdout)");
+	}
+}

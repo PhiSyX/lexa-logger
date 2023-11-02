@@ -8,19 +8,35 @@
 // ┃  file, You can obtain one at https://mozilla.org/MPL/2.0/.                ┃
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-pub(crate) mod builder;
-mod initiator;
-mod echo;
-pub mod layout;
-mod noop;
-#[cfg(feature = "serde")]
-mod settings;
-mod stdout;
+use crate::LoggerBuilder;
 
-pub use log::*;
+// --------- //
+// Structure //
+// --------- //
 
-pub use self::builder::{Logger, LoggerBuilder};
-pub use self::initiator::LoggerInitiator;
-#[cfg(feature = "serde")]
-pub use self::settings::{Settings, SettingsLevel};
-pub use self::stdout::*;
+pub struct LoggerInitiator;
+
+// -------------- //
+// Implémentation //
+// -------------- //
+
+impl LoggerInitiator
+{
+	/// Initialise le logger STDOUT à partir du builder.
+	pub fn stdout(builder: impl LoggerBuilder<crate::LoggerStdout>) -> Result<(), log::SetLoggerError>
+	{
+		let stdout = builder.build();
+		let level = stdout.level();
+
+		log::set_max_level(level);
+
+		if log::LevelFilter::Off == log::max_level() {
+			const NO: crate::noop::NopeLogger = crate::noop::NopeLogger;
+			log::set_logger(&NO)
+		} else {
+			log::set_boxed_logger(Box::new(stdout))
+		}
+	}
+
+	// NOTE: Initialiser d'autres types de logger ici...
+}

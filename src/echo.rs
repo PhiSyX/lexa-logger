@@ -14,7 +14,9 @@ use crate::layout;
 // Structure //
 // --------- //
 
-pub struct Echo<'a> {
+pub struct Echo<'a>
+{
+	pub(crate) colorized: bool,
 	pub(super) time: Option<chrono::DateTime<chrono::Local>>,
 	pub(super) delimiter: String,
 	pub(super) level: String,
@@ -26,9 +28,11 @@ pub struct Echo<'a> {
 // Implémentation //
 // -------------- //
 
-impl Echo<'_> {
+impl Echo<'_>
+{
 	/// `Stdout`: Affichage du log.
-	pub(super) fn log(self, text: String) {
+	pub(super) fn log(self, text: String)
+	{
 		if self.record_level == log::LevelFilter::Error {
 			eprint!("{text}");
 		} else {

@@ -16,12 +16,4 @@ mod style;
 pub use self::cell::Cell;
 pub use self::grid::{GridBoarder, GridLayout};
 pub use self::row::Row;
-pub use self::style::{
-	Alignment,
-	CornerStyle,
-	Style,
-	STYLE_BLANK,
-	STYLE_ROUNDED,
-	STYLE_SIMPLE,
-	STYLE_THIN,
-};
+pub use self::style::{Alignment, CornerStyle, Style, STYLE_BLANK, STYLE_ROUNDED, STYLE_SIMPLE, STYLE_THIN};

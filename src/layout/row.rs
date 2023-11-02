@@ -17,7 +17,8 @@ use super::style::{Alignment, Position, Style};
 
 #[derive(Debug)]
 #[derive(Clone)]
-pub struct Row<'d> {
+pub struct Row<'d>
+{
 	pub cells: Vec<Cell<'d>>,
 	pub separator: bool,
 }
@@ -26,25 +27,25 @@ pub struct Row<'d> {
 // Implémentation //
 // -------------- //
 
-impl<'d> Row<'d> {
-	pub fn new(
-		cells: impl IntoIterator<Item = impl Into<Cell<'d>>>,
-	) -> Row<'d> {
+impl<'d> Row<'d>
+{
+	pub fn new(cells: impl IntoIterator<Item = impl Into<Cell<'d>>>) -> Row<'d>
+	{
 		let mut row = Row {
 			cells: vec![],
 			separator: true,
 		};
 
-		cells
-			.into_iter()
-			.for_each(|entry| row.cells.push(entry.into()));
+		cells.into_iter().for_each(|entry| row.cells.push(entry.into()));
 
 		row
 	}
 }
 
-impl<'d> Row<'d> {
-	pub(crate) fn format(&self, widths: &[usize], style: &Style) -> String {
+impl<'d> Row<'d>
+{
+	pub(crate) fn format(&self, widths: &[usize], style: &Style) -> String
+	{
 		let mut temporary_buffer = String::new();
 		let mut wrapped_cells = Vec::default();
 
@@ -52,8 +53,7 @@ impl<'d> Row<'d> {
 		let mut row_height = 0;
 
 		for cell in &self.cells {
-			let width = (0..cell.colspan)
-				.fold(0, |width, j| width + widths[j + spanned_columns]);
+			let width = (0..cell.colspan).fold(0, |width, j| width + widths[j + spanned_columns]);
 			let wrapped_cell = cell.wrapped_content(width + cell.colspan - 1);
 			row_height = core::cmp::max(row_height, wrapped_cell.len());
 			wrapped_cells.push(wrapped_cell);
@@ -64,53 +64,34 @@ impl<'d> Row<'d> {
 
 		let mut lines = vec![String::new(); row_height];
 
-		for (column_index, _) in
-			wrapped_cells.iter().enumerate().take(widths.len())
-		{
+		for (column_index, _) in wrapped_cells.iter().enumerate().take(widths.len()) {
 			if self.cells.len() > column_index {
 				let cell = &self.cells[column_index];
 
-				let cell_span = (0..cell.colspan)
-					.fold(0, |n, c| n + widths[spanned_columns + c]);
+				let cell_span = (0..cell.colspan).fold(0, |n, c| n + widths[spanned_columns + c]);
 
 				let callback_fn = |(row_index, row): (usize, &mut String)| {
-					let padding = if wrapped_cells[column_index].len()
-						> row_index
-					{
-						let str_width =
-							str_len(&wrapped_cells[column_index][row_index]);
+					let padding = if wrapped_cells[column_index].len() > row_index {
+						let str_width = str_len(&wrapped_cells[column_index][row_index]);
 
 						let mut padding = 0;
 						if cell_span >= str_width {
 							padding += cell_span - str_width;
 
 							if cell.colspan > 1 {
-								padding += style.vertical.len_utf8()
-									* (cell.colspan - 1);
+								padding += style.vertical.len_utf8() * (cell.colspan - 1);
 							}
 						}
 
-						self.padding_string(
-							padding,
-							cell.alignment,
-							&wrapped_cells[column_index][row_index],
-						)
+						self.padding_string(padding, cell.alignment, &wrapped_cells[column_index][row_index])
 					} else {
-						str::repeat(
-							" ",
-							widths[spanned_columns] * cell.colspan
-								+ cell.colspan - 1,
-						)
+						str::repeat(" ", widths[spanned_columns] * cell.colspan + cell.colspan - 1)
 					};
 
 					row.push_str(&format!("{}{padding}", style.vertical));
 				};
 
-				lines
-					.iter_mut()
-					.enumerate()
-					.take(row_height)
-					.for_each(callback_fn);
+				lines.iter_mut().enumerate().take(row_height).for_each(callback_fn);
 
 				spanned_columns += cell.colspan;
 			} else {
@@ -147,7 +128,8 @@ impl<'d> Row<'d> {
 		style: &Style,
 		row: Position,
 		previous_separator: Option<&String>,
-	) -> String {
+	) -> String
+	{
 		let mut temporary_buffer = String::new();
 
 		let mut next_intersection = match self.cells.first() {
@@ -174,8 +156,7 @@ impl<'d> Row<'d> {
 				temporary_buffer.push(style.horizontal);
 			}
 
-			temporary_buffer
-				.push_str(&str::repeat(&style.horizontal.to_string(), *width));
+			temporary_buffer.push_str(&str::repeat(&style.horizontal.to_string(), *width));
 		}
 
 		temporary_buffer.push(style.end_position(row));
@@ -186,12 +167,8 @@ impl<'d> Row<'d> {
 			for pair in temporary_buffer.chars().zip(prev.chars()) {
 				if pair.0 == style.left || pair.0 == style.right {
 					output.push(pair.0);
-				} else if pair.0 != style.horizontal
-					|| pair.1 != style.horizontal
-				{
-					output.push(
-						style.merge_intersection_position(pair.1, pair.0, row),
-					);
+				} else if pair.0 != style.horizontal || pair.1 != style.horizontal {
+					output.push(style.merge_intersection_position(pair.1, pair.0, row));
 				} else {
 					output.push(style.horizontal);
 				}
@@ -203,12 +180,12 @@ impl<'d> Row<'d> {
 		temporary_buffer
 	}
 
-	pub(crate) fn split_column(&self) -> Vec<(f32, usize)> {
+	pub(crate) fn split_column(&self) -> Vec<(f32, usize)>
+	{
 		let callback_fn = |mut output: Vec<(f32, usize)>, cell: &Cell| {
 			let value = cell.split_width();
 
-			let min_w =
-				(cell.min_width() as f32 / cell.colspan as f32) as usize;
+			let min_w = (cell.min_width() as f32 / cell.colspan as f32) as usize;
 			let add_1 = cell.min_width() as f32 % cell.colspan as f32 > 0.001;
 
 			for i in 0..cell.colspan {
@@ -227,16 +204,13 @@ impl<'d> Row<'d> {
 		output
 	}
 
-	pub(crate) fn total_columns(&self) -> usize {
+	pub(crate) fn total_columns(&self) -> usize
+	{
 		self.cells.iter().map(|cell| cell.colspan).sum()
 	}
 
-	fn padding_string(
-		&self,
-		padding: usize,
-		alignment: Alignment,
-		text: &str,
-	) -> String {
+	fn padding_string(&self, padding: usize, alignment: Alignment, text: &str) -> String
+	{
 		match alignment {
 			| Alignment::Left => {
 				let r = str::repeat(" ", padding);

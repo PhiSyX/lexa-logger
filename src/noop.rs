@@ -8,19 +8,24 @@
 // ┃  file, You can obtain one at https://mozilla.org/MPL/2.0/.                ┃
 // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-pub(crate) mod builder;
-mod initiator;
-mod echo;
-pub mod layout;
-mod noop;
-#[cfg(feature = "serde")]
-mod settings;
-mod stdout;
+// --------- //
+// Structure //
+// --------- //
 
-pub use log::*;
+pub(crate) struct NopeLogger;
 
-pub use self::builder::{Logger, LoggerBuilder};
-pub use self::initiator::LoggerInitiator;
-#[cfg(feature = "serde")]
-pub use self::settings::{Settings, SettingsLevel};
-pub use self::stdout::*;
+// -------------- //
+// Implémentation //
+// -------------- //
+
+impl log::Log for NopeLogger
+{
+	fn enabled(&self, _: &log::Metadata) -> bool
+	{
+		false
+	}
+
+	fn log(&self, _: &log::Record) {}
+
+	fn flush(&self) {}
+}

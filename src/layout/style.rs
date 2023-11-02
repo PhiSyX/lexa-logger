@@ -83,7 +83,8 @@ pub const STYLE_THIN: Style = Style {
 
 #[derive(Debug)]
 #[derive(Clone, Copy)]
-pub struct Style {
+pub struct Style
+{
 	top: CornerStyle,
 	pub(crate) right: char,
 	bottom: CornerStyle,
@@ -96,7 +97,8 @@ pub struct Style {
 
 #[derive(Debug)]
 #[derive(Clone, Copy)]
-pub struct CornerStyle {
+pub struct CornerStyle
+{
 	left: char,
 	right: char,
 	intersection: char,
@@ -109,7 +111,8 @@ pub struct CornerStyle {
 #[derive(Debug)]
 #[derive(Copy, Clone)]
 #[derive(Eq, PartialEq)]
-pub enum Alignment {
+pub enum Alignment
+{
 	Left,
 	Right,
 	Center,
@@ -117,7 +120,8 @@ pub enum Alignment {
 
 #[derive(Copy, Clone)]
 #[derive(Eq, PartialEq)]
-pub(crate) enum Position {
+pub(crate) enum Position
+{
 	First,
 	Middle,
 	Last,
@@ -127,8 +131,10 @@ pub(crate) enum Position {
 // Implémentation //
 // -------------- //
 
-impl Style {
-	pub(crate) const fn start_position(&self, position: Position) -> char {
+impl Style
+{
+	pub(crate) const fn start_position(&self, position: Position) -> char
+	{
 		match position {
 			| Position::First => self.top.left,
 			| Position::Middle => self.left,
@@ -136,7 +142,8 @@ impl Style {
 		}
 	}
 
-	pub(crate) const fn end_position(&self, position: Position) -> char {
+	pub(crate) const fn end_position(&self, position: Position) -> char
+	{
 		match position {
 			| Position::First => self.top.right,
 			| Position::Middle => self.right,
@@ -144,7 +151,8 @@ impl Style {
 		}
 	}
 
-	pub(crate) const fn intersect_position(&self, position: Position) -> char {
+	pub(crate) const fn intersect_position(&self, position: Position) -> char
+	{
 		match position {
 			| Position::First => self.top.intersection,
 			| Position::Middle => self.intersection,
@@ -152,19 +160,11 @@ impl Style {
 		}
 	}
 
-	pub(crate) const fn merge_intersection_position(
-		&self,
-		top: char,
-		bottom: char,
-		position: Position,
-	) -> char {
-		if (top == self.horizontal || top == self.bottom.intersection)
-			&& bottom == self.intersection
-		{
+	pub(crate) const fn merge_intersection_position(&self, top: char, bottom: char, position: Position) -> char
+	{
+		if (top == self.horizontal || top == self.bottom.intersection) && bottom == self.intersection {
 			self.top.intersection
-		} else if (top == self.intersection || top == self.top.intersection)
-			&& bottom == self.horizontal
-		{
+		} else if (top == self.intersection || top == self.top.intersection) && bottom == self.horizontal {
 			self.bottom.intersection
 		} else if top == self.bottom.intersection && bottom == self.horizontal {
 			self.horizontal
@@ -174,8 +174,10 @@ impl Style {
 	}
 }
 
-impl CornerStyle {
-	const fn all(ch: char) -> Self {
+impl CornerStyle
+{
+	const fn all(ch: char) -> Self
+	{
 		Self {
 			left: ch,
 			right: ch,

@@ -22,7 +22,8 @@ use super::style::Alignment;
 
 #[derive(Debug)]
 #[derive(Clone)]
-pub struct Cell<'d> {
+pub struct Cell<'d>
+{
 	pub(crate) alignment: Alignment,
 	pub(crate) colspan: usize,
 	data: Cow<'d, str>,
@@ -33,8 +34,10 @@ pub struct Cell<'d> {
 // Implémentation //
 // -------------- //
 
-impl<'d> Cell<'d> {
-	pub fn new(data: impl ToString) -> Self {
+impl<'d> Cell<'d>
+{
+	pub fn new(data: impl ToString) -> Self
+	{
 		Self {
 			alignment: Alignment::Left,
 			colspan: 1,
@@ -43,28 +46,30 @@ impl<'d> Cell<'d> {
 		}
 	}
 
-	pub fn with_alignment(mut self, alignment: Alignment) -> Self {
+	pub fn with_alignment(mut self, alignment: Alignment) -> Self
+	{
 		self.alignment = alignment;
 		self
 	}
 }
 
-impl<'d> Cell<'d> {
-	pub(crate) fn width(&self) -> usize {
+impl<'d> Cell<'d>
+{
+	pub(crate) fn width(&self) -> usize
+	{
 		self.wrapped_content(std::usize::MAX)
 			.iter()
 			.fold(0, |max, text| cmp::max(max, str_len(text)))
 	}
 
-	pub(crate) fn split_width(&self) -> f32 {
+	pub(crate) fn split_width(&self) -> f32
+	{
 		self.width() as f32 / self.colspan as f32
 	}
 
-	pub(crate) fn min_width(&self) -> usize {
-		let max_char_width = self
-			.data
-			.chars()
-			.fold(0, |max, ch| cmp::max(max, ch.len_utf8()));
+	pub(crate) fn min_width(&self) -> usize
+	{
+		let max_char_width = self.data.chars().fold(0, |max, ch| cmp::max(max, ch.len_utf8()));
 
 		if self.padding {
 			max_char_width + ' '.len_utf8() * 2
@@ -73,7 +78,8 @@ impl<'d> Cell<'d> {
 		}
 	}
 
-	pub(crate) fn wrapped_content(&self, width: usize) -> Vec<String> {
+	pub(crate) fn wrapped_content(&self, width: usize) -> Vec<String>
+	{
 		let pad_char = if self.padding { ' ' } else { '\0' };
 
 		let hidden: HashSet<usize> = STRIP_ANSI_RE
@@ -91,8 +97,7 @@ impl<'d> Cell<'d> {
 
 		for ch in self.data.chars() {
 			if !hidden.contains(&byte_index)
-				&& (str_len(&temporary_buffer) >= width - pad_char.len_utf8()
-					|| ch == '\n')
+				&& (str_len(&temporary_buffer) >= width - pad_char.len_utf8() || ch == '\n')
 			{
 				temporary_buffer.push(pad_char);
 				output.push(temporary_buffer);
@@ -118,12 +123,15 @@ impl<'d> Cell<'d> {
 	}
 }
 
-pub(crate) fn str_len(string: &str) -> usize {
+pub(crate) fn str_len(string: &str) -> usize
+{
 	let stripped = STRIP_ANSI_RE.replace_all(string, "");
 	stripped.width()
 }
 
 lazy_static::lazy_static! {
+	// STRIP_ANSI_RE is lifted from the "console" crate.
+	// Copyright 2017 Armin Ronacher <armin.ronacher@active-4.com>. MIT License.
 	static ref STRIP_ANSI_RE: regex::Regex = regex::Regex::new(
 		r"[\x1b\x9b][\[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]"
 	)

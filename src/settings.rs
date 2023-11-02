@@ -15,7 +15,8 @@
 #[derive(Debug)]
 #[derive(Clone)]
 #[derive(serde::Deserialize, serde::Serialize)]
-pub struct Settings {
+pub struct Settings
+{
 	pub colorized: bool,
 	pub max_level: SettingsLevel,
 	pub target_filters: Vec<String>,
@@ -29,7 +30,8 @@ pub struct Settings {
 #[derive(Debug)]
 #[derive(Copy, Clone)]
 #[derive(serde::Deserialize, serde::Serialize)]
-pub enum SettingsLevel {
+pub enum SettingsLevel
+{
 	DEBUG,
 	ERROR,
 	INFO,
@@ -41,8 +43,10 @@ pub enum SettingsLevel {
 // Implémentation // -> Interface
 // -------------- //
 
-impl Default for Settings {
-	fn default() -> Self {
+impl Default for Settings
+{
+	fn default() -> Self
+	{
 		Self {
 			colorized: true,
 			timestamp: true,
@@ -52,8 +56,10 @@ impl Default for Settings {
 	}
 }
 
-impl From<SettingsLevel> for log::LevelFilter {
-	fn from(level: SettingsLevel) -> Self {
+impl From<SettingsLevel> for log::LevelFilter
+{
+	fn from(level: SettingsLevel) -> Self
+	{
 		match level {
 			| SettingsLevel::DEBUG => Self::Debug,
 			| SettingsLevel::ERROR => Self::Error,
