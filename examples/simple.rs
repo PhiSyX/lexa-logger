@@ -13,7 +13,7 @@ use lexa_logger::{Logger, LoggerBuilder, LoggerStdoutBuilderExtension};
 fn main()
 {
 	/*
-	use lexa_logger::{LoggerDirector, LoggerStdoutBuilder};
+	use lexa_logger::{LoggerInitiator, LoggerStdoutBuilder};
 
 	// NOTE: Aucun paramètres n'est appliqués par défaut, sauf le format des logs.
 	let logger_builder = LoggerStdoutBuilder::default()
@@ -22,7 +22,7 @@ fn main()
 		.with_timestamp(true)
 	;
 
-	LoggerDirector::stdout(logger_builder).expect("L'initialisation du logger (stdout)");
+	LoggerInitiator::stdout(logger_builder).expect("L'initialisation du logger (stdout)");
 	*/
 
 	// NOTE: Les fonctions de l'implémentation de `Logger` PEUVENT appliquer des
