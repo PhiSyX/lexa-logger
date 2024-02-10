@@ -40,9 +40,7 @@ impl LoggerInitiator
 	}
 
 	#[cfg(feature = "tracing")]
-	pub fn stdout(
-		builder: impl LoggerBuilder<crate::LoggerStdout>,
-	) -> Result<(), tracing_subscriber::fmt::SubscriberBuilder>
+	pub fn stdout(builder: impl LoggerBuilder<crate::LoggerStdout>) -> Result<(), &'static str>
 	{
 		let stdout = builder.build();
 		let level = stdout.level();
