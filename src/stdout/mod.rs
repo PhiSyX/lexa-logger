@@ -31,7 +31,10 @@ pub struct LoggerStdout
 {
 	pub(crate) colorized: bool,
 	pub(crate) timestamp: bool,
+	#[cfg(not(feature = "tracing"))]
 	pub(crate) level: log::LevelFilter,
+	#[cfg(feature = "tracing")]
+	pub(crate) level: tracing::level_filters::LevelFilter,
 	pub(crate) format_fn: LoggerFormatFn,
 	pub(crate) filter: LoggerFilter,
 	pub(crate) cache: Arc<Mutex<HashMap<String, bool>>>,
@@ -58,7 +61,14 @@ impl LoggerStdout
 
 impl LoggerStdout
 {
+	#[cfg(not(feature = "tracing"))]
 	pub fn level(&self) -> log::LevelFilter
+	{
+		self.level
+	}
+
+	#[cfg(feature = "tracing")]
+	pub fn level(&self) -> tracing::level_filters::LevelFilter
 	{
 		self.level
 	}

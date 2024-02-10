@@ -23,6 +23,7 @@ pub struct LoggerInitiator;
 impl LoggerInitiator
 {
 	/// Initialise le logger STDOUT à partir du builder.
+	#[cfg(not(feature = "tracing"))]
 	pub fn stdout(builder: impl LoggerBuilder<crate::LoggerStdout>) -> Result<(), log::SetLoggerError>
 	{
 		let stdout = builder.build();
@@ -36,6 +37,28 @@ impl LoggerInitiator
 		} else {
 			log::set_boxed_logger(Box::new(stdout))
 		}
+	}
+
+	#[cfg(feature = "tracing")]
+	pub fn stdout(
+		builder: impl LoggerBuilder<crate::LoggerStdout>,
+	) -> Result<(), tracing_subscriber::fmt::SubscriberBuilder>
+	{
+		let stdout = builder.build();
+		let level = stdout.level();
+
+		let trsb = tracing_subscriber::fmt()
+			.with_max_level(level)
+			.with_ansi(stdout.colorized)
+			.with_line_number(true);
+
+		if stdout.timestamp {
+			trsb.init();
+		} else {
+			trsb.without_time().init();
+		}
+
+		Ok(())
 	}
 
 	// NOTE: Initialiser d'autres types de logger ici...

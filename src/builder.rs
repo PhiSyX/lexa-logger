@@ -38,7 +38,10 @@ pub trait LoggerBuilder<T>
 	fn with_format(self, format: LoggerFormatFn) -> Self;
 
 	/// Le niveau de log.
+	#[cfg(not(feature = "tracing"))]
 	fn with_level(self, level: impl Into<log::LevelFilter>) -> Self;
+	#[cfg(feature = "tracing")]
+	fn with_level(self, level: impl Into<tracing::level_filters::LevelFilter>) -> Self;
 
 	/// Autorise ou non les logs à avoir un timestamp.
 	fn with_timestamp(self, b: impl Into<bool>) -> Self;

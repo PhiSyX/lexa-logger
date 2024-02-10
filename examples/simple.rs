@@ -30,14 +30,18 @@ fn main()
 	// les paramètres suivants: `.with_colorized(true)` et `.with_timestamp(true)`.
 	//
 	// NOTE: ces paramètres PEUVENT être désactivés explicitement ci-dessous.
-	Logger::stdout()
-		// .with_...
-		.with_level(log::LevelFilter::Debug)
-		// NOTE: L'extension `LoggerStdoutBuilderExtension` ajoute la fonction
-		// `.initialize()` qui elle va s'occuper d'initialiser le logger.
-		// NOTE: Cette fonction PEUT paniquer en cas d'erreur.
-		.initialize()
-	;
+	let logger = Logger::stdout();
+
+	// logger.with_...
+	#[cfg(not(feature = "tracing"))]
+	let logger = logger.with_level(log::LevelFilter::Debug);
+	#[cfg(feature = "tracing")]
+	let logger = logger.with_level(tracing::level_filters::LevelFilter::DEBUG);
+
+	// NOTE: L'extension `LoggerStdoutBuilderExtension` ajoute la fonction
+	// `.initialize()` qui elle va s'occuper d'initialiser le logger.
+	// NOTE: Cette fonction PEUT paniquer en cas d'erreur.
+	logger.initialize();
 
 	log::info!("Hello World");
 }

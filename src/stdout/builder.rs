@@ -22,7 +22,10 @@ pub struct LoggerStdoutBuilder
 {
 	colorized: bool,
 	timestamp: bool,
+	#[cfg(not(feature = "tracing"))]
 	level: Option<log::LevelFilter>,
+	#[cfg(feature = "tracing")]
+	level: Option<tracing::level_filters::LevelFilter>,
 	format_fn: Option<LoggerFormatFn>,
 	filter: LoggerFilter,
 }
@@ -56,7 +59,15 @@ impl LoggerBuilder<LoggerStdout> for LoggerStdoutBuilder
 		self
 	}
 
+	#[cfg(not(feature = "tracing"))]
 	fn with_level(mut self, level: impl Into<log::LevelFilter>) -> Self
+	{
+		self.level.replace(level.into());
+		self
+	}
+
+	#[cfg(feature = "tracing")]
+	fn with_level(mut self, level: impl Into<tracing::level_filters::LevelFilter>) -> Self
 	{
 		self.level.replace(level.into());
 		self
@@ -75,7 +86,10 @@ impl LoggerBuilder<LoggerStdout> for LoggerStdoutBuilder
 			colorized: self.colorized,
 			filter: self.filter,
 			format_fn: self.format_fn.unwrap_or(LoggerStdout::default_format),
+			#[cfg(not(feature = "tracing"))]
 			level: self.level.unwrap_or(log::LevelFilter::Off),
+			#[cfg(feature = "tracing")]
+			level: self.level.unwrap_or(tracing_subscriber::filter::LevelFilter::OFF),
 			timestamp: self.timestamp,
 		}
 	}
